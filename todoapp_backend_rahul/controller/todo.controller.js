@@ -1,11 +1,15 @@
-const Book = require("../models/todo");
+const http = require('http');
+const Book = require('../models/todo');
+const HttpStatus = require('http-status-codes');
 
 const getBooks = async (req, res) => {
   try {
     const books = await Book.find();
-    res.status(200).json(books);
+    res.writeHead(HttpStatus.StatusCodes.OK, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(books));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.writeHead(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: error.message }));
   }
 };
 
@@ -14,14 +18,18 @@ const getBookByNumber = async (req, res) => {
   try {
     const book = await Book.findOne({ booknumber });
     if (book) {
-      res.status(200).json(book);
+      res.writeHead(HttpStatus.OK, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify(book));
     } else {
-      res.sendStatus(404);
+      res.writeHead(HttpStatus.StatusCodes.NOT_FOUND, { 'Content-Type': 'application/json' });
+      res.end();
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.writeHead(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: error.message }));
   }
 };
+
 // Create a new book
 const createBook = async (req, res) => {
   const { booknumber, title, author } = req.body;
@@ -34,9 +42,11 @@ const createBook = async (req, res) => {
 
   try {
     await book.save();
-    res.status(201).json(book);
+    res.writeHead(HttpStatus.StatusCodes.CREATED, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify(book));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.writeHead(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: error.message }));
   }
 };
 
@@ -53,12 +63,15 @@ const updateBook = async (req, res) => {
       book.author = author;
       book.createdOn = new Date();
       await book.save();
-      res.sendStatus(204); // No Content
+      res.writeHead(HttpStatus.StatusCodes.NO_CONTENT);
+      res.end();
     } else {
-      res.sendStatus(404); // Not found
+      res.writeHead(HttpStatus.StatusCodes.NOT_FOUND);
+      res.end();
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.writeHead(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: error.message }));
   }
 };
 
@@ -71,12 +84,15 @@ const deleteBook = async (req, res) => {
 
     if (book) {
       await book.deleteOne();
-      res.sendStatus(204); // No Content
+      res.writeHead(HttpStatus.StatusCodes.NO_CONTENT);
+      res.end();
     } else {
-      res.sendStatus(404); // Not found
+      res.writeHead(HttpStatus.StatusCodes.NOT_FOUND);
+      res.end();
     }
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.writeHead(HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR, { 'Content-Type': 'application/json' });
+    res.end(JSON.stringify({ error: error.message }));
   }
 };
 
